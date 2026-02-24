@@ -1,0 +1,65 @@
+# docker-compose.yml — WC Optimizer
+
+services:
+  ui:
+    build: ./ui
+    ports:
+      - '8501:8501'
+    environment:
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-}
+      - API_BASE_URL=http://api:8000
+    volumes:
+      - ./data:/data
+      - ./storage:/storage
+      - ./ui:/app        # live-reload: UI changes take effect without --build
+    depends_on:
+      - api
+    restart: unless-stopped
+
+  api:
+    build: ./api
+    ports:
+      - '8000:8000'
+    environment:
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-}
+      - DUCKDB_PATH=/data/supply_chain.duckdb
+      - FALKORDB_HOST=falkordb
+      - FALKORDB_PORT=6379
+      - MCP_SSE_PORT=3001
+    volumes:
+      - ./data:/data
+      - ./storage:/storage
+      - ./mcp_servers:/mcp_servers
+      - ./api:/app       # live-reload: API changes take effect without --build
+    depends_on:
+      - falkordb
+    restart: unless-stopped
+
+  mcp-sse:
+    build:
+      context: .
+      dockerfile: mcp_servers/Dockerfile.sse
+    ports:
+      - '3001:3001'
+    environment:
+      - DUCKDB_PATH=/data/supply_chain.duckdb
+      - FALKORDB_HOST=falkordb
+      - FALKORDB_PORT=6379
+    volumes:
+      - ./data:/data
+      - ./mcp_servers:/app/mcp_servers
+    depends_on:
+      - api
+      - falkordb
+    restart: unless-stopped
+
+  falkordb:
+    image: falkordb/falkordb:latest
+    ports:
+      - '6379:6379'
+    volumes:
+      - falkordb_data:/data
+    restart: unless-stopped
+
+volumes:
+  falkordb_data:
