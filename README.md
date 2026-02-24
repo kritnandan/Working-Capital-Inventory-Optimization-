@@ -83,11 +83,19 @@ cd wc-optimizer-main
 docker compose up
 ```
 
+<p align="center">
+  <img src="docs/images/1-start-docker.png" alt="Start Desktop App" width="800" />
+</p>
+
 First run downloads images (~2–5 min). Wait for:
 ```
 wc-optimizer-ui-1   | You can now view your Streamlit app in your browser.
 wc-optimizer-api-1  | Application startup complete.
 ```
+
+<p align="center">
+  <img src="docs/images/2-docker-running.png" alt="Docker Running" width="800" />
+</p>
 
 ### 3. Open the Dashboard
 
@@ -130,6 +138,10 @@ The MCP server uses **stdio via Docker** — no Node.js, no extra installs, just
 
 1. Download and install [Claude Desktop](https://claude.ai/download)
 2. Open **Settings → Developer → Edit Config**
+
+<p align="center">
+  <img src="docs/images/3-claude-settings.png" alt="Claude Settings" width="600" />
+</p>
 3. Replace the file contents with:
 
 ```json
@@ -150,7 +162,17 @@ The MCP server uses **stdio via Docker** — no Node.js, no extra installs, just
 ```
 
 4. **Fully quit** Claude Desktop (Cmd+Q / Alt+F4), then reopen
-5. Look for the 🔌 plug icon in the chat input — that means **42 tools are connected**
+5. Go back to Developer Settings to verify the `wc-optimizer` server is running:
+
+<p align="center">
+  <img src="docs/images/4-claude-mcp.png" alt="Claude MCP Running" width="800" />
+</p>
+
+6. Ask Claude in a new chat if it is connected to the WC Optimizer server:
+
+<p align="center">
+  <img src="docs/images/5-claude-verified.png" alt="Claude Verified" width="600" />
+</p>
 
 **Config file location:**
 - macOS: `~/Library/Application Support/Claude/claude_desktop_config.json`
