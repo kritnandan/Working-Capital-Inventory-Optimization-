@@ -6,7 +6,6 @@ services:
     ports:
       - '8501:8501'
     environment:
-      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-}
       - API_BASE_URL=http://api:8000
     volumes:
       - ./data:/data
@@ -21,7 +20,6 @@ services:
     ports:
       - '8000:8000'
     environment:
-      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-}
       - DUCKDB_PATH=/data/supply_chain.duckdb
       - FALKORDB_HOST=falkordb
       - FALKORDB_PORT=6379
