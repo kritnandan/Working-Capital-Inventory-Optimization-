@@ -77,10 +77,24 @@ cd Working-Capital-Inventory-Optimization-
 cd wc-optimizer-main
 ```
 
-### 2. Start All Services
+### 2. Start Everything (One Command)
 
 ```bash
-docker compose up
+# Builds, starts all containers, AND auto-configures Claude Desktop + Cursor IDE
+make start
+```
+
+> **That's it!** This single command builds Docker, starts all 4 services, waits for
+> them to be healthy, and automatically configures your AI clients.
+
+**Or step-by-step:**
+
+```bash
+# Step A: Start Docker services
+docker compose up --build -d
+
+# Step B: Auto-configure Claude Desktop & Cursor IDE
+python scripts/setup_mcp.py
 ```
 
 <p align="center">
@@ -134,7 +148,33 @@ Upload CSV files from the **Upload Data** page. All 9 datasets together enable f
 
 The MCP server uses **stdio via Docker** — no Node.js, no extra installs, just Docker.
 
-### Claude Desktop
+### ⚡ Automatic Setup (Recommended)
+
+The fastest way — one command configures **both** Claude Desktop and Cursor IDE:
+
+```bash
+python scripts/setup_mcp.py
+```
+
+**On Windows**, you can also just double-click `scripts/setup_mcp.bat`.
+
+The script will:
+- ✅ Detect your OS and locate the correct config files
+- ✅ Merge the MCP configuration (existing configs are preserved)
+- ✅ Create a backup before any changes
+- ✅ Verify Docker is running
+
+**Useful commands:**
+```bash
+python scripts/setup_mcp.py --check      # Check current status
+python scripts/setup_mcp.py --uninstall   # Remove MCP config
+```
+
+> **After running:** Fully quit Claude Desktop (Cmd+Q / Alt+F4) and reopen it.
+
+---
+
+### Claude Desktop (Manual Fallback)
 
 1. Download and install [Claude Desktop](https://claude.ai/download)
 2. Open **Settings → Developer → Edit Config**
@@ -180,7 +220,7 @@ The MCP server uses **stdio via Docker** — no Node.js, no extra installs, just
 
 ---
 
-### Cursor IDE
+### Cursor IDE (Manual Fallback)
 
 1. Download and install [Cursor](https://cursor.sh)
 2. Open **Settings → Features → MCP → Add New MCP Server**

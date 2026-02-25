@@ -3,6 +3,7 @@
 services:
   ui:
     build: ./ui
+    container_name: wc-optimizer-ui-1
     ports:
       - '8501:8501'
     environment:
@@ -10,13 +11,21 @@ services:
     volumes:
       - ./data:/data
       - ./storage:/storage
-      - ./ui:/app        # live-reload: UI changes take effect without --build
+      - ./ui:/app # live-reload: UI changes take effect without --build
     depends_on:
-      - api
+      api:
+        condition: service_healthy
     restart: unless-stopped
+    healthcheck:
+      test: [ "CMD", "python3", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8501/_stcore/health')" ]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 40s
 
   api:
     build: ./api
+    container_name: wc-optimizer-api-1
     ports:
       - '8000:8000'
     environment:
@@ -28,15 +37,23 @@ services:
       - ./data:/data
       - ./storage:/storage
       - ./mcp_servers:/mcp_servers
-      - ./api:/app       # live-reload: API changes take effect without --build
+      - ./api:/app # live-reload: API changes take effect without --build
     depends_on:
-      - falkordb
+      falkordb:
+        condition: service_healthy
     restart: unless-stopped
+    healthcheck:
+      test: [ "CMD", "python3", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')" ]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 20s
 
   mcp-sse:
     build:
       context: .
       dockerfile: mcp_servers/Dockerfile.sse
+    container_name: wc-optimizer-mcp-sse-1
     ports:
       - '3001:3001'
     environment:
@@ -47,17 +64,32 @@ services:
       - ./data:/data
       - ./mcp_servers:/app/mcp_servers
     depends_on:
-      - api
-      - falkordb
+      api:
+        condition: service_healthy
+      falkordb:
+        condition: service_healthy
     restart: unless-stopped
+    healthcheck:
+      test: [ "CMD", "python3", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:3001/sse')" ]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 20s
 
   falkordb:
     image: falkordb/falkordb:latest
+    container_name: wc-optimizer-falkordb-1
     ports:
       - '6379:6379'
     volumes:
       - falkordb_data:/data
     restart: unless-stopped
+    healthcheck:
+      test: [ "CMD", "redis-cli", "ping" ]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
 
 volumes:
   falkordb_data:

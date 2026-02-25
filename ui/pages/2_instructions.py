@@ -9,49 +9,80 @@ st.markdown("Connect **Claude Desktop** or **Cursor IDE** to query your supply c
 # ─── Prerequisites Banner ────────────────────────────────────────────────────
 st.info("**Prerequisite:** Docker must be running and the WC Optimizer containers must be active (`docker compose up`).")
 
-# ─── Step 1: MCP Configuration ───────────────────────────────────────────────
+# ─── Auto-Setup (Recommended) ────────────────────────────────────────────────
 st.markdown("---")
-st.markdown("## Step 1 — Copy Your MCP Configuration")
+st.markdown("## ⚡ Automatic Setup (Recommended)")
 st.markdown(
-    "Both **Claude Desktop** and **Cursor IDE** use the same configuration. "
-    "It connects via `docker exec` — **no Node.js, no npm packages needed.**"
+    "Run **one command** to automatically configure both Claude Desktop and "
+    "Cursor IDE. No manual JSON editing needed!"
 )
 
-mcp_config = {
-    "mcpServers": {
-        "wc-optimizer": {
-            "command": "docker",
-            "args": [
-                "exec",
-                "-i",
-                "wc-optimizer-mcp-sse-1",
-                "python3",
-                "/app/mcp_servers/stdio_server.py"
-            ]
+col_auto1, col_auto2 = st.columns([2, 1], gap="large")
+with col_auto1:
+    st.code("python scripts/setup_mcp.py", language="bash")
+    st.markdown("""
+**What this does:**
+- ✅ Detects your OS (Windows / macOS / Linux)
+- ✅ Finds Claude Desktop and Cursor IDE config files automatically
+- ✅ Merges the MCP configuration (preserves your existing settings)
+- ✅ Creates a backup before any changes
+- ✅ Verifies Docker containers are running
+    """)
+with col_auto2:
+    st.markdown("**Other commands:**")
+    st.code("python scripts/setup_mcp.py --check", language="bash")
+    st.caption("Check current configuration status")
+    st.code("python scripts/setup_mcp.py --uninstall", language="bash")
+    st.caption("Remove MCP configuration")
+    st.markdown("---")
+    st.markdown("**Windows users:** Double-click `scripts/setup_mcp.bat`")
+
+st.warning("⚠️ **After running:** Fully quit Claude Desktop (Cmd+Q / Alt+F4) and reopen it for changes to take effect.")
+
+# ─── Manual Setup (Fallback) ─────────────────────────────────────────────────
+st.markdown("---")
+with st.expander("📋 Manual Setup (if you prefer to configure by hand)", expanded=False):
+    st.markdown("### Step 1 — Copy Your MCP Configuration")
+    st.markdown(
+        "Both **Claude Desktop** and **Cursor IDE** use the same configuration. "
+        "It connects via `docker exec` — **no Node.js, no npm packages needed.**"
+    )
+
+    mcp_config = {
+        "mcpServers": {
+            "wc-optimizer": {
+                "command": "docker",
+                "args": [
+                    "exec",
+                    "-i",
+                    "wc-optimizer-mcp-sse-1",
+                    "python3",
+                    "/app/mcp_servers/stdio_server.py"
+                ]
+            }
         }
     }
-}
-config_json = json.dumps(mcp_config, indent=2)
+    config_json = json.dumps(mcp_config, indent=2)
 
-st.code(config_json, language="json")
+    st.code(config_json, language="json")
 
-col_dl1, col_dl2, col_spacer = st.columns([1, 1, 3])
-with col_dl1:
-    st.download_button(
-        label="⬇️ claude_desktop_config.json",
-        data=config_json,
-        file_name="claude_desktop_config.json",
-        mime="application/json",
-        use_container_width=True,
-    )
-with col_dl2:
-    st.download_button(
-        label="⬇️ cursor_mcp.json",
-        data=config_json,
-        file_name="cursor_mcp.json",
-        mime="application/json",
-        use_container_width=True,
-    )
+    col_dl1, col_dl2, col_spacer = st.columns([1, 1, 3])
+    with col_dl1:
+        st.download_button(
+            label="⬇️ claude_desktop_config.json",
+            data=config_json,
+            file_name="claude_desktop_config.json",
+            mime="application/json",
+            use_container_width=True,
+        )
+    with col_dl2:
+        st.download_button(
+            label="⬇️ cursor_mcp.json",
+            data=config_json,
+            file_name="cursor_mcp.json",
+            mime="application/json",
+            use_container_width=True,
+        )
 
 # ─── Step 2: Client Setup ────────────────────────────────────────────────────
 st.markdown("---")
